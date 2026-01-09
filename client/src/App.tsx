@@ -1,14 +1,14 @@
-import Hero from "./components/ui/Hero";
-import SignUpForm from "./components/ui/SignUpForm";
+import { Route, Routes } from "react-router";
+import Dashboard from "./pages/Dashboard.tsx";
+import Home from "./pages/Home.tsx";
 
 function App() {
     return (
-        <main className="max-w-6xl mx-auto p-8">
-            <div className="flex justify-between gap-8">
-                <Hero />
-                <SignUpForm />
-            </div>
-        </main>
+        <Routes>
+            <Route index element={<Home />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
     );
 }
 

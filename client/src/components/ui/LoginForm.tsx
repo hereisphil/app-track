@@ -1,15 +1,15 @@
 import toast from "react-hot-toast";
 
-const SignUpForm = () => {
+const LoginForm = () => {
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         // Handle form submission logic here
-        toast.success("Account created successfully!");
+        toast.success("Welcome back!");
     }
     return (
         <form className="flex flex-col gap-4 min-w-sm" onSubmit={handleSubmit}>
             <h2 className="text-2xl font-bold text-cyan-600 text-center">
-                Register:{" "}
+                Login:{" "}
             </h2>
             <input
                 type="email"
@@ -32,14 +32,10 @@ const SignUpForm = () => {
                 type="submit"
                 className="py-4 px-8 border-2 border-cyan-600 rounded-md font-bold text-cyan-600 hover:bg-cyan-600 hover:text-white transition"
             >
-                Sign Up
+                Login
             </button>
-            <p className="text-sm text-gray-400 text-center">
-                Already have an account?{" "}
-                <span className="font-bold">Login</span>
-            </p>
         </form>
     );
 };
 
-export default SignUpForm;
+export default LoginForm;
