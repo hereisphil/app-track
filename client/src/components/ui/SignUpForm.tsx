@@ -1,6 +1,13 @@
+import toast from "react-hot-toast";
+
 const SignUpForm = () => {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        // Handle form submission logic here
+        toast.success("Account created successfully!");
+    }
     return (
-        <form className="flex flex-col gap-4 min-w-sm">
+        <form className="flex flex-col gap-4 min-w-sm" onSubmit={handleSubmit}>
             <h2 className="text-2xl font-bold text-cyan-600 text-center">
                 Register:{" "}
             </h2>
