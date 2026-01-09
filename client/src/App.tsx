@@ -1,9 +1,13 @@
+import Hero from "./components/ui/Hero";
+import SignUpForm from "./components/ui/SignUpForm";
+
 function App() {
     return (
-        <main>
-            <h1 className="text-center text-teal-400 text-2xl font-bold">
-                Hello World!
-            </h1>
+        <main className="max-w-6xl mx-auto p-8">
+            <div className="flex justify-between gap-8">
+                <Hero />
+                <SignUpForm />
+            </div>
         </main>
     );
 }
