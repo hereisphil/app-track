@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, type InferSchemaType } from "mongoose";
 
 const userSchema = new Schema(
     {
@@ -12,9 +12,15 @@ const userSchema = new Schema(
                 "Email must match this format: email@email.com",
             ],
         },
+        password: {
+            type: String,
+            required: [true, "User password is required"],
+            select: false, // do not return password field by default
+        },
     },
     { timestamps: true }
 );
 
-const UserModel = model("User", userSchema);
+export type User = InferSchemaType<typeof userSchema>;
+const UserModel = model<User>("User", userSchema);
 export default UserModel;

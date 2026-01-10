@@ -1,34 +1,99 @@
-import type { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import type { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
 import User from "../models/User.js";
 
-/* -------------------------------------------------------------------------- */
-/*                              POST: New User                              */
-/* -------------------------------------------------------------------------- */
-export const createUser = async (req: Request, res: Response) => {
+interface SignUpBody {
+    email: string;
+    password: string;
+}
+
+interface PublicUser {
+    id: string;
+    email: string;
+}
+
+type ApiResponse =
+    | { success: true; message: string; user: PublicUser }
+    | { success: false; message: string };
+
+export const signUp: RequestHandler<
+    unknown,
+    ApiResponse,
+    Partial<SignUpBody>
+> = async (req, res, next) => {
     try {
-        const data = req.body;
-        if (!data || Object.keys(req.body).length === 0) {
+        // check for empty body
+        if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({
-                message: "No data received. Required: email.",
+                message: "No data received. Required: email and password.",
                 success: false,
             });
         }
-        const email = data.email;
-        const user = {
-            email,
+        const emailRaw = req.body.email;
+        const passwordRaw = req.body.password;
+
+        // Basic presence checks (defensive against missing body / wrong shape)
+        if (typeof emailRaw !== "string" || emailRaw.trim().length === 0) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Email is required." });
+        }
+        if (typeof passwordRaw !== "string" || passwordRaw.length === 0) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Password is required." });
+        }
+
+        const email = emailRaw.trim().toLowerCase();
+        const password = passwordRaw;
+
+        // Basic format checks (not perfect, but good enough for API-level validation)
+        const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!emailLooksValid) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Email is not valid." });
+        }
+
+        // Minimal password policy
+        if (password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 8 characters.",
+            });
+        }
+
+        // Duplicate check
+        const existingUser = await User.findOne({ email }).lean().exec();
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: "User with this email already exists.",
+            });
+        }
+
+        // Hash password
+        const saltRounds = 10;
+        const passwordHashed = await bcrypt.hash(password, saltRounds);
+
+        // Create user
+        const newUser = await User.create({ email, password: passwordHashed });
+
+        // Build a safe response object
+        const publicUser: PublicUser = {
+            id: (newUser._id as mongoose.Types.ObjectId).toString(),
+            email: newUser.email,
         };
-        const newUser = await User.create(user);
+
         return res.status(201).json({
-            message: `${req.method} - Request made`,
             success: true,
-            user: newUser,
+            message: "User created successfully.",
+            user: publicUser,
         });
-    } catch (error: any) {
-        return res.status(500).json({
-            message: error.message,
-            success: false,
-        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
     }
 };
 
