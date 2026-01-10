@@ -3,12 +3,15 @@ import {
     deleteUser,
     getAllUsers,
     getUserById,
+    login,
     signUp,
     updateUser,
 } from "../controllers/userController.js";
 const router = Router();
 
-router.post("/", signUp);
+router.post("/signup", signUp);
+
+router.post("/login", login);
 
 router.get("/", getAllUsers);
 

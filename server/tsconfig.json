@@ -8,6 +8,7 @@
         "module": "nodenext",
         "moduleResolution": "NodeNext",
         "target": "ES2022",
+        "typeRoots": ["node_modules/@types", "@types"],
         // For nodejs:
         "lib": ["ES2022"],
         "types": ["node"],

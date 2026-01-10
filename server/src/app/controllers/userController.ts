@@ -3,6 +3,10 @@ import type { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
 import User from "../models/User.js";
 
+/* -------------------------------------------------------------------------- */
+/*                      SIGN UP (POST): Create a new user                     */
+/* -------------------------------------------------------------------------- */
+
 interface SignUpBody {
     email: string;
     password: string;
@@ -79,6 +83,9 @@ export const signUp: RequestHandler<
 
         // Create user
         const newUser = await User.create({ email, password: passwordHashed });
+        req.session.userId = (
+            newUser._id as mongoose.Types.ObjectId
+        ).toString();
 
         // Build a safe response object
         const publicUser: PublicUser = {
@@ -89,6 +96,79 @@ export const signUp: RequestHandler<
         return res.status(201).json({
             success: true,
             message: "User created successfully.",
+            user: publicUser,
+        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                              LOGIN (POST) User                             */
+/* -------------------------------------------------------------------------- */
+interface LoginBody {
+    email: string;
+    password: string;
+}
+
+export const login: RequestHandler<
+    unknown,
+    ApiResponse,
+    Partial<LoginBody>
+> = async (req, res, next) => {
+    try {
+        // check for empty body
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({
+                message: "No data received. Required: email and password.",
+                success: false,
+            });
+        }
+        const emailRaw = req.body.email;
+        const passwordRaw = req.body.password;
+
+        if (typeof emailRaw !== "string" || emailRaw.trim().length === 0) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Email is required." });
+        }
+        if (typeof passwordRaw !== "string" || passwordRaw.length === 0) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Password is required." });
+        }
+
+        const email = emailRaw.trim().toLowerCase();
+        const password = passwordRaw;
+
+        const user = await User.findOne({ email }).select("+password").exec();
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password.",
+            });
+        }
+
+        const passwordMatches = await bcrypt.compare(password, user.password);
+        if (!passwordMatches) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password.",
+            });
+        }
+
+        req.session.userId = (user._id as mongoose.Types.ObjectId).toString();
+
+        // Build a safe response object
+        const publicUser: PublicUser = {
+            id: (user._id as mongoose.Types.ObjectId).toString(),
+            email: user.email,
+        };
+
+        return res.status(200).json({
+            success: true,
+            message: "Login successful.",
             user: publicUser,
         });
     } catch (err) {
