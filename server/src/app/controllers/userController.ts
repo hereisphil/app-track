@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import type { Request, RequestHandler, Response } from "express";
+import type { RequestHandler } from "express";
 import mongoose from "mongoose";
 import User from "../models/User.js";
 
@@ -178,9 +178,44 @@ export const login: RequestHandler<
 };
 
 /* -------------------------------------------------------------------------- */
+/*                       GET Authenticated User Details                       */
+/* -------------------------------------------------------------------------- */
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
+    try {
+        const userId = req.session.userId;
+        if (!userId) {
+            return res.status(401).json({
+                message: "Not authenticated.",
+                success: false,
+            });
+        }
+
+        const user = await User.findById(userId).select("+email").exec();
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found.",
+                success: false,
+            });
+        }
+
+        return res.status(200).json({
+            message: "Authenticated user retrieved successfully.",
+            success: true,
+            user: {
+                id: (user._id as mongoose.Types.ObjectId).toString(),
+                email: user.email,
+            },
+        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
 /*                              GET: All Users                              */
 /* -------------------------------------------------------------------------- */
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers: RequestHandler = async (req, res, next) => {
     try {
         const users = await User.find();
         if (!users || Object.keys(users).length === 0) {
@@ -195,18 +230,16 @@ export const getAllUsers = async (req: Request, res: Response) => {
             success: true,
             users,
         });
-    } catch (error: any) {
-        return res.status(500).json({
-            message: error.message,
-            success: false,
-        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
     }
 };
 
 /* -------------------------------------------------------------------------- */
 /*                              GET: User By Id                             */
 /* -------------------------------------------------------------------------- */
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(id!)) {
@@ -227,18 +260,16 @@ export const getUserById = async (req: Request, res: Response) => {
             success: true,
             user,
         });
-    } catch (error: any) {
-        return res.status(500).json({
-            message: error.message,
-            success: false,
-        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
     }
 };
 
 /* -------------------------------------------------------------------------- */
 /*                            PUT: Update a User                           */
 /* -------------------------------------------------------------------------- */
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!mongoose.Types.ObjectId.isValid(id!)) {
@@ -271,18 +302,16 @@ export const updateUser = async (req: Request, res: Response) => {
             success: true,
             user: updatedUser,
         });
-    } catch (error: any) {
-        return res.status(500).json({
-            message: error.message,
-            success: false,
-        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
     }
 };
 
 /* -------------------------------------------------------------------------- */
 /*                          DELETE: Remove a User                          */
 /* -------------------------------------------------------------------------- */
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!mongoose.Types.ObjectId.isValid(id!)) {
@@ -303,10 +332,8 @@ export const deleteUser = async (req: Request, res: Response) => {
             message: `User has been deleted`,
             success: true,
         });
-    } catch (error: any) {
-        return res.status(500).json({
-            message: error.message,
-            success: false,
-        });
+    } catch (err) {
+        // Unexpected errors: let global error middleware handle it
+        next(err);
     }
 };

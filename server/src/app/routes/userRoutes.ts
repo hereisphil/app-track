@@ -1,7 +1,8 @@
 import { Router } from "express";
 import {
     deleteUser,
-    getAllUsers,
+    getAuthenticatedUser,
+    // getAllUsers,
     getUserById,
     login,
     signUp,
@@ -13,7 +14,9 @@ router.post("/signup", signUp);
 
 router.post("/login", login);
 
-router.get("/", getAllUsers);
+// router.get("/", getAllUsers);
+
+router.get("/", getAuthenticatedUser);
 
 router.get("/:id", getUserById);
 
