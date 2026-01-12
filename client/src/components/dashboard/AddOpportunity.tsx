@@ -1,8 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { IoIosClose } from "react-icons/io";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 const AddOpportunity = () => {
+    const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/");
+            toast.error("Please login or register to add opportunities.");
+        }
+    }, [isAuthenticated, navigate]);
+
     const [showForm, setShowForm] = useState(false);
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
