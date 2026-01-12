@@ -34,6 +34,7 @@ const oppSchema = new Schema(
         user: {
             type: Schema.Types.ObjectId,
             ref: "User",
+            required: [true, "Associated user is required"],
         },
     },
     { timestamps: true }
