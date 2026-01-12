@@ -1,74 +1,77 @@
-import { LoginData, SignUpData, User } from "../types/userTypes";
+import type { LoginData, SignUpData, User } from "../@types/userTypes";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
-const fetchData = async (input: RequestInfo, init?: RequestInit) => {
-    const response = await fetch(input, init);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+// Generic API response shape that matches backend
+type ApiSuccess<T> = { success: true; message: string; user: T };
+type ApiFail = { success: false; message: string };
+type ApiResponse<T> = ApiSuccess<T> | ApiFail;
 
-export const getLoggedInUser = async (): Promise<User> => {
-    const response = await fetchData(`${BASE_URL}/users`, {
-        method: "GET",
+/**
+ * Fetch helper that:
+ * - sends cookies (sessions) via credentials: "include"
+ * - parses JSON exactly once
+ * - throws a useful error message on non-2xx
+ */
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+    const res = await fetch(`${BASE_URL}${path}`, {
+        ...init,
         headers: {
             "Content-Type": "application/json",
+            ...(init?.headers || {}),
         },
+        credentials: "include", // IMPORTANT for express-session cookies
     });
 
-    if (!response.ok) {
-        throw new Error("Failed to fetch user data");
+    // Parse once
+    const data = (await res.json()) as unknown;
+
+    // If not ok, try to surface backend message
+    if (!res.ok) {
+        const message =
+            typeof data === "object" && data !== null && "message" in data
+                ? String(data.message)
+                : `HTTP error! status: ${res.status}`;
+        throw new Error(message);
     }
 
-    const data: User = await response.json();
-    return data;
-};
+    return data as T;
+}
 
-export const signUpUser = async (signUpData: SignUpData): Promise<User> => {
-    const response = await fetchData(`${BASE_URL}/users/signup`, {
+export async function getLoggedInUser(): Promise<User> {
+    // Adjust based on what backend returns on GET /users
+    const data = await fetchJson<User>("/users", { method: "GET" });
+    return data;
+}
+
+export async function signUpUser(signUpData: SignUpData): Promise<User> {
+    const data = await fetchJson<ApiResponse<User>>("/users/signup", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
         body: JSON.stringify(signUpData),
     });
 
-    if (!response.ok) {
-        throw new Error("Failed to sign up user");
+    if (!data.success) {
+        throw new Error(data.message);
     }
 
-    const data: User = await response.json();
-    return data;
-};
+    return data.user;
+}
 
-export const loginUser = async (loginData: LoginData): Promise<User> => {
-    const response = await fetchData(`${BASE_URL}/users/login`, {
+export async function loginUser(loginData: LoginData): Promise<User> {
+    const data = await fetchJson<ApiResponse<User>>("/users/login", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
         body: JSON.stringify(loginData),
     });
 
-    if (!response.ok) {
-        throw new Error("Failed to log in user");
+    if (!data.success) {
+        throw new Error(data.message);
     }
 
-    const data: User = await response.json();
-    return data;
-};
+    return data.user;
+}
 
-export const logoutUser = async (): Promise<void> => {
-    const response = await fetchData(`${BASE_URL}/users/logout`, {
+export async function logoutUser(): Promise<void> {
+    await fetchJson<{ success: boolean; message?: string }>("/users/logout", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
     });
-
-    if (!response.ok) {
-        throw new Error("Failed to log out user");
-    }
-};
+}
