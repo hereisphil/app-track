@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import OppModel from "../models/Opportunity.js";
+import User from "../models/User.js";
+
 /* -------------------------------------------------------------------------- */
 /*                              POST: New Opp                              */
 /* -------------------------------------------------------------------------- */
@@ -16,15 +18,43 @@ export const createOpp = async (
                 message: "No data received. Required: email and password.",
                 success: false,
             });
-        } else {
-            const data = req.body;
-            const newOpp = await OppModel.create(data);
-            return res.status(201).json({
-                message: "Opportunity created successfully",
-                success: true,
-                opportunity: newOpp,
+        }
+        const data = req.body;
+
+        // Validate the user id given
+        const id = data.user;
+        if (!mongoose.Types.ObjectId.isValid(id!)) {
+            return res.status(400).json({
+                message: `Invalid MongoDB ObjectId for user given: ${id}`,
+                success: false,
             });
         }
+
+        // First, find the User by the User's ID given:
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(400).json({
+                message:
+                    "A user by the id cannot be found. Please send your request again.",
+                success: false,
+            });
+        }
+        // Next, update the data with the User's information:
+        data.user = user;
+        // Then, create a new Opportunity model
+        const oppData = new OppModel(data);
+        // Push the user id to the user.opps array
+        user.opportunities.push(oppData._id);
+        // save the opp and user data
+        const queries = [oppData.save(), user.save()];
+        await Promise.all(queries);
+
+        return res.status(201).json({
+            message: "Opportunity created successfully",
+            success: true,
+            opportunity: oppData,
+        });
     } catch (err) {
         // Unexpected errors: let global error middleware handle it
         next(err);

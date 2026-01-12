@@ -17,6 +17,12 @@ const userSchema = new Schema(
             required: [true, "User password is required"],
             select: false, // do not return password field by default
         },
+        opportunities: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Opp",
+            },
+        ],
     },
     { timestamps: true }
 );

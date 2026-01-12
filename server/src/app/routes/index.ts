@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import express from "express";
+import oppRoutes from "./oppRoutes.js";
 import userRoutes from "./userRoutes.js";
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 router.use("/users", userRoutes);
+router.use("/opps", oppRoutes);
 
 export default router;
