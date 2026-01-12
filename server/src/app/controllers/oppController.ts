@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import OppModel from "../models/Opportunity.js";
 import User from "../models/User.js";
+import { assertDefined } from "../util/assertDefined.js";
 
 /* -------------------------------------------------------------------------- */
 /*                              POST: New Opp                              */
@@ -11,7 +12,9 @@ export const createOpp = async (
     res: Response,
     next: NextFunction
 ) => {
+    const authenticatedUserId = req.session.userId;
     try {
+        assertDefined(authenticatedUserId);
         // check for empty body
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({
@@ -21,17 +24,8 @@ export const createOpp = async (
         }
         const data = req.body;
 
-        // Validate the user id given
-        const id = data.user;
-        if (!mongoose.Types.ObjectId.isValid(id!)) {
-            return res.status(400).json({
-                message: `Invalid MongoDB ObjectId for user given: ${id}`,
-                success: false,
-            });
-        }
-
         // First, find the User by the User's ID given:
-        const user = await User.findById(id);
+        const user = await User.findById(authenticatedUserId).exec();
 
         if (!user) {
             return res.status(400).json({
@@ -69,8 +63,12 @@ export const getAllOpps = async (
     res: Response,
     next: NextFunction
 ) => {
+    const authenticatedUserId = req.session.userId;
     try {
-        const opps = await OppModel.find().sort({ createdAt: -1 }).exec();
+        assertDefined(authenticatedUserId);
+        const opps = await OppModel.find({ userId: authenticatedUserId })
+            .sort({ createdAt: -1 })
+            .exec();
         return res.status(200).json({
             message: "Request successful",
             success: true,
@@ -91,7 +89,9 @@ export const updateOpp = async (
     next: NextFunction
 ) => {
     const { id } = req.params;
+    const authenticatedUserId = req.session.userId;
     try {
+        assertDefined(authenticatedUserId);
         // Validate the ObjectId format BEFORE querying
         if (!mongoose.Types.ObjectId.isValid(id!)) {
             return res.status(400).json({
@@ -110,13 +110,22 @@ export const updateOpp = async (
             });
         }
 
-        const foundOpp = await OppModel.findById(id);
+        const foundOpp = await OppModel.findById(id).exec();
+
         if (!foundOpp) {
             return res.status(404).json({
                 message: `No Opp found with id: ${id}`,
                 success: false,
             });
         }
+
+        if (foundOpp.userId.equals(authenticatedUserId) === false) {
+            return res.status(403).json({
+                message: "You do not have permission to update this Opp.",
+                success: false,
+            });
+        }
+
         const opp = await OppModel.findByIdAndUpdate(id, data, { new: true });
         return res.status(200).json({
             message: "Opportunity updated successfully",
@@ -138,7 +147,9 @@ export const deleteOpp = async (
     next: NextFunction
 ) => {
     const { id } = req.params;
+    const authenticatedUserId = req.session.userId;
     try {
+        assertDefined(authenticatedUserId);
         // Validate the ObjectId format BEFORE querying
         if (!mongoose.Types.ObjectId.isValid(id!)) {
             return res.status(400).json({
@@ -152,13 +163,20 @@ export const deleteOpp = async (
                 message: `No Opp found with id: ${id}`,
                 success: false,
             });
-        } else {
-            await OppModel.deleteOne({ _id: id }).exec();
-            return res.status(200).json({
-                message: "Opportunity deleted successfully",
-                success: true,
+        }
+
+        if (foundOpp.userId.equals(authenticatedUserId) === false) {
+            return res.status(403).json({
+                message: "You do not have permission to update this Opp.",
+                success: false,
             });
         }
+
+        await OppModel.deleteOne({ _id: id }).exec();
+        return res.status(200).json({
+            message: "Opportunity deleted successfully",
+            success: true,
+        });
     } catch (err) {
         // Unexpected errors: let global error middleware handle it
         next(err);

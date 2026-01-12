@@ -31,7 +31,7 @@ const oppSchema = new Schema(
                 type: String,
             },
         ],
-        user: {
+        userId: {
             type: Schema.Types.ObjectId,
             ref: "User",
             required: [true, "Associated user is required"],

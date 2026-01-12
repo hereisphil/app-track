@@ -5,13 +5,15 @@ import {
     logout,
     signUp,
 } from "../controllers/userController.js";
+import { requiresAuth } from "../middleware/auth.js";
+
 const router = Router();
 
 router.post("/signup", signUp);
 
 router.post("/login", login);
 
-router.get("/", getAuthenticatedUser);
+router.get("/", requiresAuth, getAuthenticatedUser);
 
 router.post("/logout", logout);
 

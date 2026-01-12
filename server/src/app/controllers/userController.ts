@@ -182,15 +182,9 @@ export const login: RequestHandler<
 /* -------------------------------------------------------------------------- */
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
     try {
-        const userId = req.session.userId;
-        if (!userId) {
-            return res.status(401).json({
-                message: "Not authenticated.",
-                success: false,
-            });
-        }
-
-        const user = await User.findById(userId).select("+email").exec();
+        const user = await User.findById(req.session.userId)
+            .select("+email")
+            .exec();
         if (!user) {
             return res.status(404).json({
                 message: "User not found.",
