@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 import { Link, NavLink, useNavigate } from "react-router";
-import { logoutUser } from "../../../services/userRoutes";
 import { useAuth } from "../../context/AuthContext";
+import { logoutUser } from "../../services/userRoutes";
 
 const Header = () => {
     const { isAuthenticated, setUser } = useAuth();

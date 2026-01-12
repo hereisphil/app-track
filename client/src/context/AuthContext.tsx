@@ -5,8 +5,8 @@ import React, {
     useMemo,
     useState,
 } from "react";
-import type { User } from "../../@types/userTypes";
-import { getLoggedInUser } from "../../services/userRoutes";
+import type { User } from "../@types/userTypes";
+import { getLoggedInUser } from "../services/userRoutes";
 
 type AuthContextValue = {
     user: User | null;

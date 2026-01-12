@@ -1,10 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast/headless";
 import { useNavigate } from "react-router";
-import type { OpportunityProps } from "../../@types/oppTypes.ts";
+import type { OpportunityProps } from "../@types/oppTypes.ts";
 import AddOpportunity from "../components/dashboard/AddOpportunity";
-import OppCard from "../components/dashboard/OppCard";
+import OppCard from "../components/dashboard/OppCard.tsx";
 import { useAuth } from "../context/AuthContext";
+import { getAllOpps } from "../services/oppRoutes.ts";
+
+interface OpportunitiesResponse {
+    message: string;
+    success: boolean;
+    Opportunities: [];
+}
 
 const cardBgClasses = [
     "bg-white",
@@ -13,67 +20,10 @@ const cardBgClasses = [
     "bg-teal-100",
 ];
 
-const opportunities: OpportunityProps[] = [
-    {
-        id: 1,
-        title: "Software Engineer",
-        company: "Tech Corp",
-        location: "New York, NY",
-        website: "www.techcorp.com",
-        tags: ["#engineering", "#full-time", "#remote"],
-        status: "applied",
-    },
-    {
-        id: 2,
-        title: "Product Manager",
-        company: "Innovate Inc",
-        location: "San Francisco, CA",
-        website: "www.innovateinc.com",
-        tags: ["#product", "#full-time", "#remote"],
-        status: "interview",
-    },
-    {
-        id: 3,
-        title: "Data Analyst",
-        company: "DataWorks",
-        location: "Chicago, IL",
-        website: "www.dataworks.com",
-        tags: ["#data", "#contract", "#onsite"],
-        status: "offer",
-    },
-    {
-        id: 4,
-        title: "Software Engineer",
-        company: "Tech Corp",
-        location: "New York, NY",
-        website: "www.techcorp.com",
-        tags: ["#engineering", "#full-time", "#remote"],
-        status: "applied",
-    },
-    {
-        id: 5,
-        title: "Product Manager",
-        company: "Innovate Inc",
-        location: "San Francisco, CA",
-        website: "www.innovateinc.com",
-        tags: ["#product", "#full-time", "#remote"],
-        status: "interview",
-    },
-    {
-        id: 6,
-        title: "Data Analyst",
-        company: "DataWorks",
-        location: "Chicago, IL",
-        website: "www.dataworks.com",
-        tags: ["#data", "#contract", "#onsite"],
-        status: "offer",
-    },
-];
-
 const Dashboard = () => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-
+    const { isAuthenticated } = useAuth(); // boolean
+    const [opportunities, setOpportunities] = useState<OpportunityProps[]>([]);
     // Redirect to login if not authenticated
     useEffect(() => {
         if (!isAuthenticated) {
@@ -81,6 +31,23 @@ const Dashboard = () => {
             toast.error("Please login or register to add opportunities.");
         }
     }, [isAuthenticated, navigate]);
+
+    useEffect(() => {
+        async function fetchOpportunities() {
+            try {
+                const opps: OpportunitiesResponse = await getAllOpps();
+                if (opps.Opportunities.length === 0) {
+                    toast.error("No opportunities found. Start by adding one!");
+                }
+                setOpportunities(opps.Opportunities);
+            } catch (error) {
+                console.error("Error fetching opportunities:", error);
+                toast.error("Failed to load opportunities");
+            }
+        }
+        fetchOpportunities();
+    }, []);
+
     return (
         <main className="px-4">
             <div className="flex justify-center gap-4">
@@ -94,13 +61,21 @@ const Dashboard = () => {
                 <AddOpportunity />
             </div>
             <div className="grid grid-cols-4 gap-4 my-8">
-                {opportunities.map((opp, index) => (
-                    <OppCard
-                        key={opp.id}
-                        opportunity={opp}
-                        bgClass={cardBgClasses[index % cardBgClasses.length]}
-                    />
-                ))}
+                {opportunities.length !== 0 ? (
+                    opportunities.map((opp, index) => (
+                        <OppCard
+                            key={opp.id}
+                            opportunity={opp}
+                            bgClass={
+                                cardBgClasses[index % cardBgClasses.length]
+                            }
+                        />
+                    ))
+                ) : (
+                    <p className="text-amber-500 col-span-4 text-center text-2xl my-8">
+                        No opportunities available. Please add some.
+                    </p>
+                )}
             </div>
         </main>
     );

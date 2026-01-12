@@ -44,7 +44,6 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 export async function getLoggedInUser(): Promise<User> {
     // Adjust based on what backend returns on GET /users
     const data = await fetchJson<User>("/users", { method: "GET" });
-    console.log("Logged in user data:", data);
     return data;
 }
 

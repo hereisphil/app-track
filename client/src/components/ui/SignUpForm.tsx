@@ -1,8 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
-import { signUpUser } from "../../../services/userRoutes";
 import { useAuth } from "../../context/AuthContext";
+import { signUpUser } from "../../services/userRoutes";
 
 const SignUpForm = ({ showLogin }: { showLogin: () => void }) => {
     const navigate = useNavigate();

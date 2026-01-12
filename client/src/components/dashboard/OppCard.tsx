@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaEdit } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
-import type { OpportunityProps } from "../../../@types/oppTypes.ts";
+import type { OpportunityProps } from "../../@types/oppTypes.ts";
 type OppCardProps = {
     opportunity: OpportunityProps;
     bgClass?: string;

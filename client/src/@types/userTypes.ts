@@ -1,5 +1,7 @@
 export interface User {
     email: string;
+    id: string;
+    opportunities?: number[];
 }
 
 export interface SignUpData {
