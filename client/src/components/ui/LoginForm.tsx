@@ -1,10 +1,28 @@
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { loginUser } from "../../../services/userRoutes";
+const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
+    const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-const LoginForm = () => {
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        // Handle form submission logic here
-        toast.success("Welcome back!");
+        setIsSubmitting(true);
+        try {
+            const formData = new FormData(event.currentTarget);
+            const email = formData.get("email") as string;
+            const password = formData.get("password") as string;
+            const user = await loginUser({ email, password });
+            console.log("Logged in:", user);
+            toast.success("Logged in successfully!");
+            navigate("/dashboard");
+        } catch (error) {
+            console.error("Error logging in user:", error);
+            toast.error("Failed to log in");
+        } finally {
+            setIsSubmitting(false);
+        }
     }
     return (
         <form className="flex flex-col gap-4 min-w-sm" onSubmit={handleSubmit}>
@@ -31,9 +49,20 @@ const LoginForm = () => {
             <button
                 type="submit"
                 className="py-4 px-8 border-2 border-cyan-600 rounded-md font-bold text-cyan-600 hover:bg-cyan-600 hover:text-white transition"
+                disabled={isSubmitting}
             >
                 Login
             </button>
+            <p className="text-sm text-gray-400 text-center">
+                Don't have an account?{" "}
+                <button
+                    type="button"
+                    className="font-bold cursor-pointer hover:underline"
+                    onClick={showSignup}
+                >
+                    Sign up
+                </button>
+            </p>
         </form>
     );
 };

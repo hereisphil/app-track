@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { signUpUser } from "../../../services/userRoutes";
 
-const SignUpForm = () => {
+const SignUpForm = ({ showLogin }: { showLogin: () => void }) => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,7 +56,13 @@ const SignUpForm = () => {
             </button>
             <p className="text-sm text-gray-400 text-center">
                 Already have an account?{" "}
-                <span className="font-bold">Login</span>
+                <button
+                    type="button"
+                    className="font-bold cursor-pointer hover:underline"
+                    onClick={showLogin}
+                >
+                    Login
+                </button>
             </p>
         </form>
     );
