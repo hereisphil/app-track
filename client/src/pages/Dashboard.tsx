@@ -1,6 +1,20 @@
+import { useEffect } from "react";
+import { toast } from "react-hot-toast/headless";
+import { useNavigate } from "react-router";
 import AddOpportunity from "../components/dashboard/AddOpportunity";
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
+    const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/");
+            toast.error("Please login or register to add opportunities.");
+        }
+    }, [isAuthenticated, navigate]);
     return (
         <main>
             <div className="flex justify-center gap-4">
