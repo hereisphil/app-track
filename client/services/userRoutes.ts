@@ -22,10 +22,13 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
         },
         credentials: "include", // IMPORTANT for express-session cookies
     });
+    // Handle no content response for logout
+    if (res.status === 204) {
+        return { success: true, message: "User logged out successfully" } as T;
+    }
 
     // Parse once
     const data = (await res.json()) as unknown;
-
     // If not ok, try to surface backend message
     if (!res.ok) {
         const message =
@@ -71,7 +74,11 @@ export async function loginUser(loginData: LoginData): Promise<User> {
 }
 
 export async function logoutUser(): Promise<void> {
-    await fetchJson<{ success: boolean; message?: string }>("/users/logout", {
-        method: "POST",
-    });
+    const response = await fetchJson<{ success: boolean; message?: string }>(
+        "/users/logout",
+        {
+            method: "POST",
+        }
+    );
+    console.log("Logout response:", response);
 }
