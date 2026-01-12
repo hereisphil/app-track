@@ -2,8 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { loginUser } from "../../../services/userRoutes";
+import { useAuth } from "../../context/AuthContext";
+
 const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
     const navigate = useNavigate();
+    const { setUser } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -15,6 +18,7 @@ const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
             const password = formData.get("password") as string;
             const user = await loginUser({ email, password });
             console.log("Logged in:", user);
+            setUser(user);
             toast.success("Logged in successfully!");
             navigate("/dashboard");
         } catch (error) {

@@ -2,9 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { signUpUser } from "../../../services/userRoutes";
+import { useAuth } from "../../context/AuthContext";
 
 const SignUpForm = ({ showLogin }: { showLogin: () => void }) => {
     const navigate = useNavigate();
+    const { setUser } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -16,6 +18,7 @@ const SignUpForm = ({ showLogin }: { showLogin: () => void }) => {
             const password = formData.get("password") as string;
             const user = await signUpUser({ email, password });
             console.log("Signed up:", user);
+            setUser(user);
             toast.success("Account created successfully!");
             navigate("/dashboard");
         } catch (error) {
