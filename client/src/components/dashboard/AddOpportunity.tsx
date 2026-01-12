@@ -43,6 +43,7 @@ const AddOpportunity = () => {
                             type="text"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
                             placeholder="Position Title"
+                            required
                         />
                         <input
                             type="text"
