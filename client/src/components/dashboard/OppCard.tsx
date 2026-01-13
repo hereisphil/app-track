@@ -43,7 +43,7 @@ const OppCard = ({ opportunity, bgClass = "bg-white" }: OppCardProps) => {
                     </li>
                     <li className="text-gray-700 text-base">
                         <Link
-                            to={`https://${opportunity.website}`}
+                            to={`${opportunity.website}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline"
