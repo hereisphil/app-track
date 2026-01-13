@@ -18,7 +18,7 @@ export const createOpp = async (
         // check for empty body
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({
-                message: "No data received. Required: email and password.",
+                message: "No data received.",
                 success: false,
             });
         }
