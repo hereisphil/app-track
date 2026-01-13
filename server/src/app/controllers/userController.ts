@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import type { RequestHandler } from "express";
 import mongoose from "mongoose";
+import type {} from "../../../@types/session.js";
 import User from "../models/User.js";
-
 /* -------------------------------------------------------------------------- */
 /*                      SIGN UP (POST): Create a new user                     */
 /* -------------------------------------------------------------------------- */
