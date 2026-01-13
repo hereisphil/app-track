@@ -14,9 +14,7 @@ createRoot(document.getElementById("root")!).render(
             <AuthProvider>
                 <Header />
                 <App />
-                <Footer>
-                    &copy; 2026 by Phillip Cantu. All Rights Reserved.
-                </Footer>
+                <Footer />
                 <Toaster position="top-right" />
             </AuthProvider>
         </BrowserRouter>
