@@ -1,6 +1,6 @@
 import "dotenv/config";
 import app from "./app/app.js";
-import connectDB from "./app/db/config.js";
+import connectDB from "./app/db/config-cached.js"; // Use the cached connection version for Vercel
 
 connectDB();
 
