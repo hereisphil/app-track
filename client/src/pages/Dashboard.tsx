@@ -41,6 +41,7 @@ const Dashboard = () => {
     return (
         <main className="px-4">
             <div className="flex justify-center gap-4">
+                <div>
                 <input
                     type="text"
                     name="search"
@@ -48,6 +49,8 @@ const Dashboard = () => {
                     placeholder="Search opportunities..."
                     className="border-2 border-gray-400 px-4 py-2 rounded-md"
                 />
+                <p className="text-sm text-gray-400"><em>Search isn't functional... YET!</em></p>
+                </div>
                 {user && <AddOpportunity user={user} />}
             </div>
             <div className="grid grid-cols-4 gap-4 my-8">

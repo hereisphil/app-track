@@ -21,7 +21,7 @@ function Home() {
 
     return (
         <main className="max-w-6xl mx-auto p-8">
-            <div className="flex justify-between gap-8">
+            <div className="flex flex-col md:flex-row justify-between gap-8">
                 <Hero />
                 {isLogin ? (
                     <LoginForm showSignup={() => setIsLogin(false)} />
