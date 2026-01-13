@@ -41,17 +41,22 @@ const Dashboard = () => {
     return (
         <main className="px-4">
             <div className="flex justify-center gap-4">
-                <div>
-                <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    placeholder="Search opportunities..."
-                    className="border-2 border-gray-400 px-4 py-2 rounded-md"
-                />
-                <p className="text-sm text-gray-400"><em>Search isn't functional... YET!</em></p>
+                <div className="flex flex-col items-center">
+                    <div className="flex items-center gap-4">
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            placeholder="Search opportunities..."
+                            className="border-2 border-gray-400 px-4 py-2 rounded-md h-11"
+                        />
+                        {user && <AddOpportunity user={user} />}
+                    </div>
+
+                    <p className="text-sm text-gray-400 mt-1">
+                        <em>Search isn't functional... YET!</em>
+                    </p>
                 </div>
-                {user && <AddOpportunity user={user} />}
             </div>
             <div className="grid grid-cols-4 gap-4 my-8">
                 {opportunities.length !== 0 ? (

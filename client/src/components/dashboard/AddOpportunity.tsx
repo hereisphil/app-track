@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { IoIosClose } from "react-icons/io";
+import { IoIosAdd, IoIosClose } from "react-icons/io";
 import type { OpportunityProps } from "../../@types/oppTypes";
 import type { User } from "../../@types/userTypes";
 import { createOpp } from "../../services/oppRoutes";
@@ -38,10 +38,10 @@ const AddOpportunity = ({ user }: { user: User }) => {
         <>
             <button
                 type="button"
-                className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
                 onClick={() => setShowForm(!showForm)}
+                className="bg-cyan-600 text-white h-11 w-11 rounded flex items-center justify-center hover:bg-cyan-700"
             >
-                Add Opportunity
+                <IoIosAdd size={26} />
             </button>
             {showForm && (
                 <div
@@ -49,7 +49,7 @@ const AddOpportunity = ({ user }: { user: User }) => {
                     onClick={() => setShowForm(!showForm)}
                 >
                     <form
-                        className="flex flex-col gap-4 bg-white rounded px-8 py-6 min-w-lg relative"
+                        className="flex flex-col gap-4 bg-white rounded px-8 py-6 md:min-w-lg relative"
                         onClick={(e) => e.stopPropagation()}
                         onSubmit={handleSubmit}
                     >
@@ -107,7 +107,7 @@ const AddOpportunity = ({ user }: { user: User }) => {
                             </button>
                         </div>
                         <IoIosClose
-                            className="cursor-pointer absolute top-4 right-4"
+                            className="cursor-pointer absolute top-2 right-2 md:top-4 md:right-4"
                             onClick={() => setShowForm(!showForm)}
                             size={30}
                         />

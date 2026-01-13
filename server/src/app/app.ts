@@ -6,6 +6,9 @@ import morgan from "morgan";
 import routeHandler from "./routes/index.js";
 
 const app = express();
+// Define if we are in production or not
+const isProduction = process.env.NODE_ENV === "production";
+
 app.set("trust proxy", 1);
 app.use(morgan("dev"));
 app.use(express.json());
@@ -18,13 +21,15 @@ const allowedOrigins = [
 app.use(
     cors({
         origin: (origin, callback) => {
-            // allow non-browser tools (Postman, curl)
-            if (!origin) return callback(null, true);
-            callback(null, allowedOrigins.includes(origin));
+            if (!origin) return callback(null, true); // Postman/curl
+            if (allowedOrigins.includes(origin)) return callback(null, origin);
+            return callback(new Error(`CORS blocked for origin: ${origin}`));
         },
         credentials: true,
     })
 );
+
+app.set("trust proxy", 1);
 
 app.use(
     session({
@@ -34,8 +39,10 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            maxAge: 1000 * 60 * 60 * 24, // 1 day
-            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24,
+            secure: isProduction, // must be true on Render (HTTPS)
+            sameSite: isProduction ? "none" : "lax",
         },
         rolling: true,
         store: MongoStore.create({
