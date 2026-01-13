@@ -6,7 +6,7 @@ import morgan from "morgan";
 import routeHandler from "./routes/index.js";
 
 const app = express();
-
+app.set("trust proxy", 1); // trust first proxy for Vercel
 app.use(morgan("dev"));
 app.use(express.json());
 const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];

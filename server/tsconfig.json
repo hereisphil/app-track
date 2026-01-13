@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         // File Layout
-        "rootDir": "./src",
+        "rootDir": "./",
         "outDir": "./dist",
+        "esModuleInterop": true,
 
         // Environment Settings
         "module": "nodenext",
@@ -30,5 +31,6 @@
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
         "skipLibCheck": true
-    }
+    },
+    "include": ["src/**/*", "api/**/*"]
 }
