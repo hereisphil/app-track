@@ -5,7 +5,13 @@ import type { OpportunityProps } from "../../@types/oppTypes";
 import type { User } from "../../@types/userTypes";
 import { createOpp } from "../../services/oppRoutes";
 
-const AddOpportunity = ({ user }: { user: User }) => {
+const AddOpportunity = ({
+    user,
+    refreshOpps,
+}: {
+    user: User;
+    refreshOpps: () => void;
+}) => {
     const userId = user?.id;
     const [showForm, setShowForm] = useState(false);
 
@@ -26,6 +32,7 @@ const AddOpportunity = ({ user }: { user: User }) => {
                 toast.error("Failed to add opportunity");
                 return;
             }
+            refreshOpps();
             setShowForm(false);
             toast.success("Opportunity added!");
         } catch (error) {

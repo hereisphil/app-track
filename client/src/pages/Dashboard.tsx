@@ -21,6 +21,7 @@ const Dashboard = () => {
     const { isAuthenticated } = useAuth(); // boolean
     const [user, setUser] = useState<User | null>(null);
     const [opportunities, setOpportunities] = useState<OpportunityProps[]>([]);
+    const [refreshOpps, setRefreshOpps] = useState(0);
 
     // Redirect to login if not authenticated
     useEffect(() => {
@@ -36,7 +37,7 @@ const Dashboard = () => {
             setOpportunities(opps);
         };
         fetchData();
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, navigate, refreshOpps]);
 
     return (
         <main className="px-4">
@@ -50,7 +51,14 @@ const Dashboard = () => {
                             placeholder="Search opportunities..."
                             className="border-2 border-gray-400 px-4 py-2 rounded-md h-11"
                         />
-                        {user && <AddOpportunity user={user} />}
+                        {user && (
+                            <AddOpportunity
+                                refreshOpps={() =>
+                                    setRefreshOpps((prev) => prev + 1)
+                                }
+                                user={user}
+                            />
+                        )}
                     </div>
 
                     <p className="text-sm text-gray-400 mt-1">
