@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import mongoose from "mongoose";
+import type {} from "../../../@types/session.js";
 import OppModel from "../models/Opportunity.js";
 import User from "../models/User.js";
 import { assertDefined } from "../util/assertDefined.js";
@@ -92,13 +92,6 @@ export const updateOpp = async (
     const authenticatedUserId = req.session.userId;
     try {
         assertDefined(authenticatedUserId);
-        // Validate the ObjectId format BEFORE querying
-        if (!mongoose.Types.ObjectId.isValid(id!)) {
-            return res.status(400).json({
-                message: `Invalid MongoDB ObjectId: ${id}`,
-                success: false,
-            });
-        }
 
         // Check for request body BEFORE fetch
         const data = req.body;
@@ -150,13 +143,7 @@ export const deleteOpp = async (
     const authenticatedUserId = req.session.userId;
     try {
         assertDefined(authenticatedUserId);
-        // Validate the ObjectId format BEFORE querying
-        if (!mongoose.Types.ObjectId.isValid(id!)) {
-            return res.status(400).json({
-                message: `Invalid MongoDB ObjectId: ${id}`,
-                success: false,
-            });
-        }
+
         const foundOpp = await OppModel.findById(id);
         if (!foundOpp) {
             return res.status(404).json({
