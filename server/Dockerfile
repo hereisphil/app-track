@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 5001
 
 # 8. Run compiled JS
-CMD ["node", "dist/server.js"]
+CMD ["npm", "start"]

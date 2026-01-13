@@ -2,11 +2,11 @@
     "name": "server",
     "version": "1.0.0",
     "description": "Job Tracker Server",
-    "main": "index.js",
+    "main": "./dist/src/server.js",
     "scripts": {
-        "dev": "tsx watch api/index.ts",
+        "dev": "tsx watch ./src/server.ts",
         "build": "tsc",
-        "start": "node dist/index.js"
+        "start": "node dist/src/server.js"
     },
     "type": "module",
     "keywords": [],

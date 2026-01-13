@@ -6,16 +6,21 @@ import morgan from "morgan";
 import routeHandler from "./routes/index.js";
 
 const app = express();
-app.set("trust proxy", 1); // trust first proxy for Vercel
+app.set("trust proxy", 1);
 app.use(morgan("dev"));
 app.use(express.json());
-const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://app-track-frontend.vercel.app",
+];
 
 app.use(
     cors({
-        origin: (origin, cb) => {
-            if (!origin) return cb(null, true); // allow non-browser tools
-            cb(null, allowedOrigins.includes(origin));
+        origin: (origin, callback) => {
+            // allow non-browser tools (Postman, curl)
+            if (!origin) return callback(null, true);
+            callback(null, allowedOrigins.includes(origin));
         },
         credentials: true,
     })
@@ -23,7 +28,9 @@ app.use(
 
 app.use(
     session({
-        secret: process.env.SESSION_SECRET || "default_secret",
+        secret:
+            process.env.SESSION_SECRET ||
+            "1zMUz3AOgjhrF0Df335TyDI0dKE1RTo4MtaTnhyPxVQ=",
         resave: false,
         saveUninitialized: false,
         cookie: {
