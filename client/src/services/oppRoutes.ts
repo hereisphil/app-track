@@ -1,4 +1,4 @@
-import type { OpportunityProps } from "../@types/oppTypes";
+import type { OpportunityProps, OpportunityResponse } from "../@types/oppTypes";
 import { getLoggedInUser } from "./userRoutes";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
@@ -35,8 +35,10 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function getAllOpps() {
     getLoggedInUser(); // Ensure user is logged in before fetching opps
-    const data = await fetchJson("/opps", { method: "GET" });
-    return data;
+    const data: OpportunityResponse = await fetchJson("/opps", {
+        method: "GET",
+    });
+    return data.Opportunities;
 }
 
 export async function createOpp(

@@ -17,10 +17,13 @@ const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
             const user = await loginUser({ email, password });
-            console.log("Logged in:", user);
-            setUser(user);
-            toast.success("Logged in successfully!");
-            navigate("/dashboard");
+            if (user) {
+                setUser(user);
+                toast.success("Logged in successfully!");
+                navigate("/dashboard");
+            } else {
+                toast.error("Invalid login credentials");
+            }
         } catch (error) {
             console.error("Error logging in user:", error);
             toast.error("Failed to log in");

@@ -2,16 +2,12 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast/headless";
 import { useNavigate } from "react-router";
 import type { OpportunityProps } from "../@types/oppTypes.ts";
+import type { User } from "../@types/userTypes.ts";
 import AddOpportunity from "../components/dashboard/AddOpportunity";
 import OppCard from "../components/dashboard/OppCard.tsx";
 import { useAuth } from "../context/AuthContext";
 import { getAllOpps } from "../services/oppRoutes.ts";
-
-interface OpportunitiesResponse {
-    message: string;
-    success: boolean;
-    Opportunities: [];
-}
+import { getLoggedInUser } from "../services/userRoutes";
 
 const cardBgClasses = [
     "bg-white",
@@ -23,30 +19,24 @@ const cardBgClasses = [
 const Dashboard = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth(); // boolean
+    const [user, setUser] = useState<User | null>(null);
     const [opportunities, setOpportunities] = useState<OpportunityProps[]>([]);
+
     // Redirect to login if not authenticated
     useEffect(() => {
         if (!isAuthenticated) {
             navigate("/");
             toast.error("Please login or register to add opportunities.");
+            return;
         }
+        const fetchData = async () => {
+            const currentUser = await getLoggedInUser();
+            const opps = await getAllOpps();
+            setUser(currentUser);
+            setOpportunities(opps);
+        };
+        fetchData();
     }, [isAuthenticated, navigate]);
-
-    useEffect(() => {
-        async function fetchOpportunities() {
-            try {
-                const opps: OpportunitiesResponse = await getAllOpps();
-                if (opps.Opportunities.length === 0) {
-                    toast.error("No opportunities found. Start by adding one!");
-                }
-                setOpportunities(opps.Opportunities);
-            } catch (error) {
-                console.error("Error fetching opportunities:", error);
-                toast.error("Failed to load opportunities");
-            }
-        }
-        fetchOpportunities();
-    }, []);
 
     return (
         <main className="px-4">
@@ -58,7 +48,7 @@ const Dashboard = () => {
                     placeholder="Search opportunities..."
                     className="border-2 border-gray-400 px-4 py-2 rounded-md"
                 />
-                <AddOpportunity />
+                {user && <AddOpportunity user={user} />}
             </div>
             <div className="grid grid-cols-4 gap-4 my-8">
                 {opportunities.length !== 0 ? (

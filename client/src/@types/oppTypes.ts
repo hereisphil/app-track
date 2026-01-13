@@ -1,10 +1,16 @@
 export interface OpportunityProps {
-    id: string;
+    id?: string;
     title: string;
     company: string;
     location: string;
     website: string;
     tags?: string[];
     status: string;
-    userId: number;
+    userId: string;
+}
+
+export interface OpportunityResponse {
+    success: boolean;
+    message: string;
+    Opportunities: [];
 }

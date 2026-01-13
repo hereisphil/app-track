@@ -1,4 +1,9 @@
-import type { LoginData, SignUpData, User } from "../@types/userTypes";
+import type {
+    LoginData,
+    SignUpData,
+    User,
+    UserResponse,
+} from "../@types/userTypes";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -42,9 +47,9 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function getLoggedInUser(): Promise<User> {
-    // Adjust based on what backend returns on GET /users
-    const data = await fetchJson<User>("/users", { method: "GET" });
-    return data;
+    const data = await fetchJson<UserResponse>("/users", { method: "GET" });
+    const user: User = data.user;
+    return user;
 }
 
 export async function signUpUser(signUpData: SignUpData): Promise<User> {
@@ -66,9 +71,7 @@ export async function loginUser(loginData: LoginData): Promise<User> {
         body: JSON.stringify(loginData),
     });
 
-    if (!data.success) {
-        throw new Error(data.message);
-    }
+    if (!data.success) throw new Error(data.message);
 
     return data.user;
 }

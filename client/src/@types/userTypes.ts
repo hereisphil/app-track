@@ -1,7 +1,16 @@
+export interface UserResponse {
+    message: string;
+    success: boolean;
+    user: {
+        email: string;
+        id: string;
+    };
+}
+
 export interface User {
-    email: string;
     id: string;
-    opportunities?: number[];
+    email: string;
+    opportunities?: string[];
 }
 
 export interface SignUpData {
