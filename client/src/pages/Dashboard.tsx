@@ -5,7 +5,7 @@ import type { OpportunityProps } from "../@types/oppTypes.ts";
 import type { User } from "../@types/userTypes.ts";
 import AddOpportunity from "../components/dashboard/AddOpportunity";
 import OppCard from "../components/dashboard/OppCard.tsx";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext.tsx";
 import { getAllOpps } from "../services/oppRoutes.ts";
 import { getLoggedInUser } from "../services/userRoutes";
 
@@ -70,10 +70,13 @@ const Dashboard = () => {
                 {opportunities.length !== 0 ? (
                     opportunities.map((opp, index) => (
                         <OppCard
-                            key={opp.id}
+                            key={opp._id}
                             opportunity={opp}
                             bgClass={
                                 cardBgClasses[index % cardBgClasses.length]
+                            }
+                            refreshOpps={() =>
+                                setRefreshOpps((prev) => prev + 1)
                             }
                         />
                     ))

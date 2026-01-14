@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router";
 import App from "./App.tsx";
 import Footer from "./components/ui/Footer.tsx";
 import Header from "./components/ui/Header.tsx";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext.tsx";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
