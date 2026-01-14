@@ -1,5 +1,5 @@
 export interface OpportunityProps {
-    _id: string;
+    _id?: string;
     title: string;
     company: string;
     location: string;
