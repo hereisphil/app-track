@@ -1,76 +1,75 @@
 import type { OpportunityProps, OpportunityResponse } from "../@types/oppTypes";
-import { getLoggedInUser } from "./userRoutes";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 /**
- * Fetch helper that:
- * - sends cookies (sessions) via credentials: "include"
- * - parses JSON exactly once
- * - throws a useful error message on non-2xx
+ * A reusable helper function to handle API calls.
+ * It automatically adds the correct headers and credentials.
  */
-async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-    const res = await fetch(`${BASE_URL}${path}`, {
-        ...init,
+async function sendRequest<ResponseType>(
+    endpoint: string,
+    requestOptions: RequestInit = {}
+): Promise<ResponseType> {
+    const url = `${BASE_URL}${endpoint}`;
+
+    const defaultHeaders = {
+        "Content-Type": "application/json",
+    };
+
+    const response = await fetch(url, {
+        ...requestOptions,
         headers: {
-            "Content-Type": "application/json",
-            ...(init?.headers || {}),
+            ...defaultHeaders,
+            ...requestOptions.headers,
         },
-        credentials: "include", // IMPORTANT for express-session cookies
+        credentials: "include", // Ensures cookies/sessions are sent to the backend
     });
 
-    // Parse once
-    const data = (await res.json()) as unknown;
-    // If not ok, try to surface backend message
-    if (!res.ok) {
-        const message =
-            typeof data === "object" && data !== null && "message" in data
-                ? String(data.message)
-                : `HTTP error! status: ${res.status}`;
-        throw new Error(message);
+    const responseData = await response.json();
+
+    // If the backend returns an error (like 400, 401, 500)
+    if (!response.ok) {
+        // Use the message from the backend, or a generic one
+        const errorMessage =
+            responseData.message || `HTTP Error: ${response.status}`;
+        throw new Error(errorMessage);
     }
 
-    return data as T;
+    return responseData as ResponseType;
 }
 
-export async function getAllOpps() {
-    getLoggedInUser(); // Ensure user is logged in before fetching opps
-    const data: OpportunityResponse = await fetchJson("/opps", {
+/* -------------------------------------------------------------------------- */
+/*                              The API Functions                             */
+/* -------------------------------------------------------------------------- */
+
+export async function fetchAllOpportunities() {
+    const responseData = await sendRequest<OpportunityResponse>("/opps", {
         method: "GET",
     });
-    return data.Opportunities;
+
+    return responseData.Opportunities;
 }
 
-export async function createOpp(
-    oppData: Omit<OpportunityProps, "id">
-): Promise<{ success: boolean; message: string; opp: OpportunityProps }> {
-    getLoggedInUser(); // Ensure user is logged in before creating an opp
-    const data: { success: boolean; message: string; opp: OpportunityProps } =
-        await fetchJson("/opps", {
-            method: "POST",
-            body: JSON.stringify(oppData),
-        });
-
-    if (!data.success) {
-        throw new Error(data.message);
-    }
-
-    return data;
+export async function createOpportunity(
+    newOpportunityData: Omit<OpportunityProps, "id">
+) {
+    return sendRequest<{
+        success: boolean;
+        message: string;
+        opp: OpportunityProps;
+    }>("/opps", {
+        method: "POST",
+        body: JSON.stringify(newOpportunityData),
+    });
 }
 
-export async function updateOpp(
-    oppData: OpportunityProps
-): Promise<{ success: boolean; message: string; opp: OpportunityProps }> {
-    getLoggedInUser(); // Ensure user is logged in before creating an opp
-    const data: { success: boolean; message: string; opp: OpportunityProps } =
-        await fetchJson(`/opps/${oppData._id}`, {
-            method: "PUT",
-            body: JSON.stringify(oppData),
-        });
-
-    if (!data.success) {
-        throw new Error(data.message);
-    }
-
-    return data;
+export async function updateOpportunity(opportunityData: OpportunityProps) {
+    return sendRequest<{
+        success: boolean;
+        message: string;
+        opp: OpportunityProps;
+    }>(`/opps/${opportunityData._id}`, {
+        method: "PUT",
+        body: JSON.stringify(opportunityData),
+    });
 }

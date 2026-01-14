@@ -6,7 +6,7 @@ import type { User } from "../@types/userTypes.ts";
 import AddOpportunity from "../components/dashboard/AddOpportunity";
 import OppCard from "../components/dashboard/OppCard.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
-import { getAllOpps } from "../services/oppRoutes.ts";
+import { fetchAllOpportunities } from "../services/oppRoutes.ts";
 import { getLoggedInUser } from "../services/userRoutes";
 
 const cardBgClasses = [
@@ -22,6 +22,7 @@ const Dashboard = () => {
     const [user, setUser] = useState<User | null>(null);
     const [opportunities, setOpportunities] = useState<OpportunityProps[]>([]);
     const [refreshOpps, setRefreshOpps] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Redirect to login if not authenticated
     useEffect(() => {
@@ -31,10 +32,18 @@ const Dashboard = () => {
             return;
         }
         const fetchData = async () => {
-            const currentUser = await getLoggedInUser();
-            const opps = await getAllOpps();
-            setUser(currentUser);
-            setOpportunities(opps);
+            setIsLoading(true);
+            try {
+                const currentUser = await getLoggedInUser();
+                const opps = await fetchAllOpportunities();
+                setUser(currentUser);
+                setOpportunities(opps);
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                toast.error("Failed to load opportunities.");
+            } finally {
+                setIsLoading(false);
+            }
         };
         fetchData();
     }, [isAuthenticated, navigate, refreshOpps]);
@@ -67,7 +76,11 @@ const Dashboard = () => {
                 </div>
             </div>
             <div className="grid grid-cols-4 gap-4 my-8">
-                {opportunities.length !== 0 ? (
+                {isLoading ? (
+                    <p className="text-cyan-600 col-span-4 text-center text-xl my-8">
+                        Loading your opportunities...
+                    </p>
+                ) : opportunities.length !== 0 ? (
                     opportunities.map((opp, index) => (
                         <OppCard
                             key={opp._id}

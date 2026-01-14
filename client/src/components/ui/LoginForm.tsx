@@ -44,6 +44,7 @@ const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
                 name="email"
                 id="email"
                 placeholder="email"
+                autoComplete="email"
                 className="py-4 px-8 border-2 border-gray-400 rounded-md"
                 required
             />
@@ -52,13 +53,14 @@ const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
                 name="password"
                 id="password"
                 placeholder="password"
+                autoComplete="current-password"
                 className="py-4 px-8 border-2 border-gray-400 rounded-md"
                 minLength={8}
                 required
             />
             <button
                 type="submit"
-                className="py-4 px-8 border-2 border-cyan-600 rounded-md font-bold text-cyan-600 hover:bg-cyan-600 hover:text-white transition"
+                className="py-4 px-8 border-2 border-cyan-600 rounded-md font-bold text-cyan-600 hover:bg-cyan-600 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-cyan-600"
                 disabled={isSubmitting}
             >
                 Login

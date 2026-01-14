@@ -3,7 +3,8 @@ import toast from "react-hot-toast";
 import { IoIosAdd, IoIosClose } from "react-icons/io";
 import type { OpportunityProps } from "../../@types/oppTypes";
 import type { User } from "../../@types/userTypes";
-import { createOpp } from "../../services/oppRoutes";
+import { createOpportunity } from "../../services/oppRoutes";
+import { normalizeWebsite } from "../../util/urlHandler.ts";
 
 const AddOpportunity = ({
     user,
@@ -14,20 +15,23 @@ const AddOpportunity = ({
 }) => {
     const userId = user?.id;
     const [showForm, setShowForm] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             const formData = new FormData(e.currentTarget);
             const oppData: OpportunityProps = {
                 title: formData.get("title") as string,
                 company: formData.get("company") as string,
                 location: formData.get("location") as string,
-                website: formData.get("website") as string,
+                website: normalizeWebsite(formData.get("website") as string),
                 status: formData.get("status") as string,
                 userId,
             };
-            const response = await createOpp(oppData);
+            const response = await createOpportunity(oppData);
             if (!response.success) {
                 toast.error("Failed to add opportunity");
                 return;
@@ -38,6 +42,8 @@ const AddOpportunity = ({
         } catch (error) {
             console.error("Error adding opportunity:", error);
             toast.error("Failed to add opportunity");
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -101,9 +107,10 @@ const AddOpportunity = ({
                         <div className="flex gap-4">
                             <button
                                 type="submit"
-                                className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
+                                className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-cyan-600"
+                                disabled={isSubmitting}
                             >
-                                Submit
+                                {isSubmitting ? "Submitting..." : "Submit"}
                             </button>
                             <button
                                 type="button"

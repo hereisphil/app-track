@@ -4,7 +4,8 @@ import { FaEdit } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { Link } from "react-router";
 import type { OpportunityProps } from "../../@types/oppTypes.ts";
-import { updateOpp } from "../../services/oppRoutes.ts";
+import { updateOpportunity } from "../../services/oppRoutes.ts";
+import { normalizeWebsite, toHttpsUrl } from "../../util/urlHandler.ts";
 
 type OppCardProps = {
     opportunity: OpportunityProps;
@@ -32,9 +33,11 @@ const OppCard = ({
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         try {
             e.preventDefault();
-            const formData = form;
-            console.log("formData", formData);
-            const response = await updateOpp(formData);
+            const formData = {
+                ...form,
+                website: normalizeWebsite(form.website),
+            };
+            const response = await updateOpportunity(formData);
             if (!response.success) {
                 toast.error("Failed to add opportunity");
                 return;
@@ -72,7 +75,7 @@ const OppCard = ({
                     </li>
                     <li className="text-gray-700 text-base">
                         <Link
-                            to={`${opportunity.website}`}
+                            to={toHttpsUrl(opportunity.website)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline"
