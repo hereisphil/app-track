@@ -2,21 +2,50 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaEdit } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
+import { Link } from "react-router";
 import type { OpportunityProps } from "../../@types/oppTypes.ts";
+import { updateOpp } from "../../services/oppRoutes.ts";
+
 type OppCardProps = {
     opportunity: OpportunityProps;
     bgClass?: string;
+    refreshOpps: () => void;
 };
 
-import { Link } from "react-router";
-
-const OppCard = ({ opportunity, bgClass = "bg-white" }: OppCardProps) => {
+const OppCard = ({
+    opportunity,
+    bgClass = "bg-white",
+    refreshOpps,
+}: OppCardProps) => {
     const [showForm, setShowForm] = useState(false);
 
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        setShowForm(false);
-        toast.success("Opportunity Updated!");
+    const [form, setForm] = useState<OpportunityProps>({
+        _id: opportunity._id,
+        company: opportunity.company,
+        title: opportunity.title,
+        location: opportunity.location,
+        website: opportunity.website,
+        status: (opportunity.status as OpportunityProps["status"]) ?? "applied",
+        userId: opportunity.userId,
+    });
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        try {
+            e.preventDefault();
+            const formData = form;
+            console.log("formData", formData);
+            const response = await updateOpp(formData);
+            if (!response.success) {
+                toast.error("Failed to add opportunity");
+                return;
+            }
+            refreshOpps();
+            setShowForm(false);
+            toast.success("Opportunity Updated!");
+        } catch (error) {
+            console.log(error);
+            toast.error("Something went wrong. Not updated.");
+        }
     }
 
     return (
@@ -52,7 +81,9 @@ const OppCard = ({ opportunity, bgClass = "bg-white" }: OppCardProps) => {
                         </Link>
                     </li>
                     <li className="text-gray-700 text-base">
-                        Status: {opportunity.status}
+                        Status:{" "}
+                        {opportunity.status.charAt(0).toUpperCase() +
+                            opportunity.status.slice(1)}
                     </li>
                 </ul>
             </div>
@@ -84,28 +115,68 @@ const OppCard = ({ opportunity, bgClass = "bg-white" }: OppCardProps) => {
                             type="text"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
                             placeholder="Company Name"
-                            value={opportunity.company}
+                            value={form.company}
+                            onChange={(e) =>
+                                setForm((p) => ({
+                                    ...p,
+                                    company: e.target.value,
+                                }))
+                            }
                             required
                         />
                         <input
                             type="text"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
                             placeholder="Position Title"
-                            value={opportunity.title}
+                            value={form.title}
+                            onChange={(e) =>
+                                setForm((p) => ({
+                                    ...p,
+                                    title: e.target.value,
+                                }))
+                            }
                             required
                         />
                         <input
                             type="text"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
                             placeholder="Location"
-                            value={opportunity.location}
+                            value={form.location}
+                            onChange={(e) =>
+                                setForm((p) => ({
+                                    ...p,
+                                    location: e.target.value,
+                                }))
+                            }
                         />
                         <input
                             type="text"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
                             placeholder="Job Posting Website"
-                            value={opportunity.website}
+                            value={form.website}
+                            onChange={(e) =>
+                                setForm((p) => ({
+                                    ...p,
+                                    website: e.target.value,
+                                }))
+                            }
                         />
+                        <select
+                            className="border-2 border-gray-300 px-4 py-2 rounded-md"
+                            value={form.status}
+                            onChange={(e) =>
+                                setForm((p) => ({
+                                    ...p,
+                                    status: e.target
+                                        .value as OpportunityProps["status"],
+                                }))
+                            }
+                        >
+                            <option value="applied">Applied</option>
+                            <option value="interviewing">Interviewing</option>
+                            <option value="offered">Offered</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
                         <div className="flex gap-4">
                             <button
                                 type="submit"
@@ -114,7 +185,7 @@ const OppCard = ({ opportunity, bgClass = "bg-white" }: OppCardProps) => {
                                 Submit
                             </button>
                             <button
-                                type="submit"
+                                type="button"
                                 className="bg-gray-300 text-white px-4 py-2 rounded hover:bg-gray-400"
                                 onClick={() => setShowForm(!showForm)}
                             >

@@ -29,7 +29,10 @@ const SignUpForm = ({ showLogin }: { showLogin: () => void }) => {
         }
     }
     return (
-        <form className="flex flex-col gap-4 md:min-w-sm" onSubmit={handleSubmit}>
+        <form
+            className="flex flex-col gap-4 md:min-w-sm"
+            onSubmit={handleSubmit}
+        >
             <h2 className="text-2xl font-bold text-cyan-600 text-center">
                 Register:{" "}
             </h2>

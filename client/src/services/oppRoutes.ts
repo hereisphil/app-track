@@ -57,3 +57,20 @@ export async function createOpp(
 
     return data;
 }
+
+export async function updateOpp(
+    oppData: OpportunityProps
+): Promise<{ success: boolean; message: string; opp: OpportunityProps }> {
+    getLoggedInUser(); // Ensure user is logged in before creating an opp
+    const data: { success: boolean; message: string; opp: OpportunityProps } =
+        await fetchJson(`/opps/${oppData._id}`, {
+            method: "PUT",
+            body: JSON.stringify(oppData),
+        });
+
+    if (!data.success) {
+        throw new Error(data.message);
+    }
+
+    return data;
+}
