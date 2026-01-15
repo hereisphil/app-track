@@ -75,9 +75,9 @@ const Dashboard = () => {
                     </p>
                 </div>
             </div>
-            <div className="grid grid-cols-4 gap-4 my-8">
+            <div className="grid grid-cols-1 gap-4 my-8 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6">
                 {isLoading ? (
-                    <p className="text-cyan-600 col-span-4 text-center text-xl my-8">
+                    <p className="text-cyan-600 col-span-full text-center text-xl my-8">
                         Loading your opportunities...
                     </p>
                 ) : opportunities.length !== 0 ? (
@@ -94,7 +94,7 @@ const Dashboard = () => {
                         />
                     ))
                 ) : (
-                    <p className="text-amber-500 col-span-4 text-center text-2xl my-8">
+                    <p className="text-amber-500 col-span-full text-center text-2xl my-8">
                         No opportunities available. Please add some.
                     </p>
                 )}

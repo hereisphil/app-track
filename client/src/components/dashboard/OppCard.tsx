@@ -2,9 +2,13 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaEdit } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
+import { MdDeleteForever } from "react-icons/md";
 import { Link } from "react-router";
 import type { OpportunityProps } from "../../@types/oppTypes.ts";
-import { updateOpportunity } from "../../services/oppRoutes.ts";
+import {
+    deleteOpportunity,
+    updateOpportunity,
+} from "../../services/oppRoutes.ts";
 import { normalizeWebsite, toHttpsUrl } from "../../util/urlHandler.ts";
 
 type OppCardProps = {
@@ -13,12 +17,18 @@ type OppCardProps = {
     refreshOpps: () => void;
 };
 
+type DeleteOppResponse = {
+    success: boolean;
+    message: string;
+};
+
 const OppCard = ({
     opportunity,
     bgClass = "bg-white",
     refreshOpps,
 }: OppCardProps) => {
     const [showForm, setShowForm] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
 
     const [form, setForm] = useState<OpportunityProps>({
         _id: opportunity._id,
@@ -51,6 +61,26 @@ const OppCard = ({
         }
     }
 
+    async function handleDelete(): Promise<void> {
+        setShowConfirmation(true);
+        try {
+            const response = (await deleteOpportunity(
+                opportunity._id!
+            )) as DeleteOppResponse;
+            if (!response.success) {
+                toast.error(response.message || "Failed to delete opportunity");
+                return;
+            }
+            refreshOpps();
+            toast.success("Opportunity Deleted!");
+        } catch (error) {
+            console.log(error);
+            toast.error("Something went wrong. Not deleted.");
+        } finally {
+            setShowConfirmation(false);
+        }
+    }
+
     return (
         <div
             className={`max-w-sm rounded overflow-hidden shadow-lg ${bgClass}`}
@@ -58,12 +88,25 @@ const OppCard = ({
             <div className="px-6 py-4">
                 <div className="font-bold text-xl mb-2 flex justify-between items-center">
                     {opportunity.company}
-                    <span>
-                        <FaEdit
+                    <span className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            aria-label="Edit opportunity"
                             onClick={() => setShowForm(!showForm)}
-                            size={15}
-                            className="cursor-pointer hover:text-red-600 transition-all duration-300"
-                        />
+                            className="rounded p-1 hover:text-red-600 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                        >
+                            <FaEdit size={15} aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            aria-label="Delete opportunity"
+                            onClick={() =>
+                                setShowConfirmation(!showConfirmation)
+                            }
+                            className=" rounded p-1 hover:text-red-600 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                        >
+                            <MdDeleteForever size={15} aria-hidden="true" />
+                        </button>
                     </span>
                 </div>
                 <ul>
@@ -107,7 +150,7 @@ const OppCard = ({
                     onClick={() => setShowForm(!showForm)}
                 >
                     <form
-                        className="flex flex-col gap-4 bg-white rounded px-8 py-6 min-w-lg relative"
+                        className="flex flex-col gap-4 bg-white rounded px-8 py-6 md:min-w-lg relative"
                         onClick={(e) => e.stopPropagation()}
                         onSubmit={handleSubmit}
                     >
@@ -201,6 +244,43 @@ const OppCard = ({
                             size={30}
                         />
                     </form>
+                </div>
+            )}
+            {showConfirmation && (
+                <div className="fixed bg-black/50 min-h-screen z-10 w-screen flex justify-center items-center top-0 left-0">
+                    <div
+                        className="flex flex-col gap-4 bg-white rounded px-8 py-6 md:min-w-lg relative"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-center font-bold text-xl mb-4">
+                            Delete this opportunity?
+                        </h3>
+                        <div className="flex justify-center gap-4">
+                            <button
+                                type="button"
+                                className="bg-red-400 text-white px-4 py-2 rounded hover:bg-red-500 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                onClick={handleDelete}
+                            >
+                                Confirm
+                            </button>
+                            <button
+                                type="button"
+                                className="bg-gray-300 text-white px-4 py-2 rounded hover:bg-gray-400"
+                                onClick={() =>
+                                    setShowConfirmation(!showConfirmation)
+                                }
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                        <IoIosClose
+                            className="cursor-pointer absolute top-2 right-2 md:top-4 md:right-4"
+                            onClick={() =>
+                                setShowConfirmation(!showConfirmation)
+                            }
+                            size={30}
+                        />
+                    </div>
                 </div>
             )}
         </div>

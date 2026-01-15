@@ -73,3 +73,11 @@ export async function updateOpportunity(opportunityData: OpportunityProps) {
         body: JSON.stringify(opportunityData),
     });
 }
+
+export async function deleteOpportunity(id: string) {
+    const responseData = await sendRequest(`/opps/${id}`, {
+        method: "DELETE",
+    });
+
+    return responseData;
+}
