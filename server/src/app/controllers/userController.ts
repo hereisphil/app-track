@@ -223,3 +223,25 @@ export const logout: RequestHandler = (req, res, next) => {
         next(err);
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/*                    Endpoint to check email availability                    */
+/* -------------------------------------------------------------------------- */
+export const checkForUser: RequestHandler = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        // Query the DB
+        const user = await User.findOne({ email });
+
+        // If user exists, send back taken: true
+        if (user) {
+            return res.status(200).json({ isTaken: true });
+        }
+
+        // Otherwise, taken: false
+        return res.status(200).json({ isTaken: false });
+    } catch (err) {
+        next(err);
+    }
+};

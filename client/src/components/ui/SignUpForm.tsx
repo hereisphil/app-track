@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import { signUpUser } from "../../services/userRoutes";
+import { checkForUser, signUpUser } from "../../services/userRoutes";
 
 const SignUpForm = ({
     showLogin,
@@ -11,6 +11,29 @@ const SignUpForm = ({
     showLogin: () => void;
     onExistingAccount: () => void;
 }) => {
+    const [email, setEmail] = useState("");
+    const [emailTaken, setEmailTaken] = useState(false);
+    const [checking, setChecking] = useState(false);
+
+    useEffect(() => {
+        if (!email) return;
+
+        const timer = setTimeout(async () => {
+            setChecking(true);
+            try {
+                const res = await checkForUser(email);
+
+                setEmailTaken(res.isTaken);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setChecking(false);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [email]);
+
     const navigate = useNavigate();
     const { setUser } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,6 +45,12 @@ const SignUpForm = ({
             const formData = new FormData(event.currentTarget);
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
+            const confirmPassword = formData.get("confirmPassword") as string;
+            if (password !== confirmPassword) {
+                toast.error("Passwords do not match. Please try again.");
+                setIsSubmitting(false);
+                return;
+            }
             const user = await signUpUser({ email, password });
             console.log("Signed up:", user);
             setUser(user);
@@ -57,13 +86,43 @@ const SignUpForm = ({
                 placeholder="email"
                 autoComplete="email"
                 className="py-4 px-8 border-2 border-gray-400 rounded-md"
+                value={email}
+                onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailTaken(false);
+                }}
+                style={{ borderColor: emailTaken ? "red" : "#ccc" }}
                 required
             />
+            {/* Visual Feedback Logic */}
+            {checking && (
+                <p className="text-gray-500">Checking availability...</p>
+            )}
+
+            {!checking && emailTaken && (
+                <p style={{ color: "red" }}>
+                    This email is already registered.{" "}
+                    <a href="/login">Sign in?</a>
+                </p>
+            )}
             <input
                 type="password"
                 name="password"
                 id="password"
                 placeholder="password"
+                autoComplete="new-password"
+                className="py-4 px-8 border-2 border-gray-400 rounded-md"
+                minLength={8}
+                required
+            />
+            <p className="text-xs text-gray-500 text-center">
+                Password must be at least 8 characters long.
+            </p>
+            <input
+                type="password"
+                name="confirmPassword"
+                id="confirmPassword"
+                placeholder="confirm password"
                 autoComplete="new-password"
                 className="py-4 px-8 border-2 border-gray-400 rounded-md"
                 minLength={8}

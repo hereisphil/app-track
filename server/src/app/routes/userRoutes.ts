@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+    checkForUser,
     getAuthenticatedUser,
     login,
     logout,
@@ -14,6 +15,8 @@ router.post("/signup", signUp);
 router.post("/login", login);
 
 router.get("/", requiresAuth, getAuthenticatedUser);
+
+router.post("/", checkForUser);
 
 router.post("/logout", logout);
 

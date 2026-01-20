@@ -81,7 +81,22 @@ export async function logoutUser(): Promise<void> {
         "/users/logout",
         {
             method: "POST",
-        }
+        },
     );
     console.log("Logout response:", response);
+}
+
+export interface EmailAvailabilityResponse {
+    isTaken: boolean;
+}
+
+export async function checkForUser(
+    email: string,
+): Promise<EmailAvailabilityResponse> {
+    const response = await fetchJson<EmailAvailabilityResponse>("/users", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+    });
+
+    return response;
 }
