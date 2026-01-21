@@ -69,33 +69,62 @@ const AddOpportunity = ({
                         <h3 className="text-center font-bold text-xl mb-4">
                             Where did you apply?
                         </h3>
+                        <label
+                            htmlFor="company"
+                            className="text-sm font-medium"
+                        >
+                            Company name
+                        </label>
                         <input
                             type="text"
+                            id="company"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
-                            placeholder="Company Name"
+                            placeholder="Apple Inc."
                             name="company"
                             required
                         />
+                        <label htmlFor="title" className="text-sm font-medium">
+                            Position title
+                        </label>
                         <input
                             type="text"
+                            id="title"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
-                            placeholder="Position Title"
+                            placeholder="Junior Full Stack Developer"
                             name="title"
                             required
                         />
+                        <label
+                            htmlFor="location"
+                            className="text-sm font-medium"
+                        >
+                            Location
+                        </label>
                         <input
                             type="text"
+                            id="location"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
-                            placeholder="Location"
+                            placeholder="Cupertino, CA"
                             name="location"
                         />
+                        <label
+                            htmlFor="website"
+                            className="text-sm font-medium"
+                        >
+                            Job posting website
+                        </label>
                         <input
                             type="text"
+                            id="website"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
-                            placeholder="Job Posting Website"
+                            placeholder="linkedin.com/jobs/view/dev-4343769943"
                             name="website"
                         />
+                        <label htmlFor="status" className="text-sm font-medium">
+                            Status
+                        </label>
                         <select
+                            id="status"
                             name="status"
                             className="border-2 border-gray-300 px-4 py-2 rounded-md"
                         >
