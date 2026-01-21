@@ -20,14 +20,14 @@ const Header = () => {
             toast.error(
                 error instanceof Error
                     ? error.message
-                    : "An unknown error occurred"
+                    : "An unknown error occurred",
             );
         }
     };
 
     return (
         <header className="bg-cyan-600 px-4 py-6 mb-4 font-semibold">
-            <div className="max-w-6xl mx-auto flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+            <div className="mx-auto flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
                 <div className="flex w-full items-center justify-between md:w-auto">
                     <h2 className="text-xl text-white">
                         <Link to="/">App Track</Link>
