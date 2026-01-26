@@ -31,7 +31,7 @@ function Home() {
 
     const handleExistingAccount = () => {
         setSignupNotice(
-            "Looks like you already have an account. Please log in to continue."
+            "Looks like you already have an account. Please log in to continue.",
         );
         setAuthView("login");
     };
@@ -48,9 +48,9 @@ function Home() {
 
     return (
         <main className="max-w-6xl mx-auto p-8">
-            <div className="flex flex-col md:flex-row justify-between gap-8">
+            <div className="flex flex-col items-center md:items-start md:flex-row justify-between gap-8">
                 <Hero />
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 w-full max-w-md">
                     {signupNotice && (
                         <div
                             role="status"

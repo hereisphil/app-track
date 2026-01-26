@@ -94,10 +94,6 @@ const SignUpForm = ({
                 style={{ borderColor: emailTaken ? "red" : "#ccc" }}
                 required
             />
-            {/* Visual Feedback Logic */}
-            {checking && (
-                <p className="text-gray-500">Checking availability...</p>
-            )}
 
             {!checking && emailTaken && (
                 <p style={{ color: "red" }}>
