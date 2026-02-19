@@ -28,7 +28,7 @@ const AddOpportunity = ({
                 company: formData.get("company") as string,
                 location: formData.get("location") as string,
                 website: normalizeWebsite(formData.get("website") as string),
-                status: formData.get("status") as string,
+                status: (formData.get("status") as string).toLowerCase(),
                 userId,
             };
             const response = await createOpportunity(oppData);

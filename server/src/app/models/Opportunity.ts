@@ -22,8 +22,8 @@ const oppSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["Applied", "Interviewing", "Offered", "Rejected"],
-            default: "Applied",
+            enum: ["applied", "interviewing", "offered", "rejected"],
+            default: "applied",
             required: [true, "Opportunity status is required"],
         },
         tags: [
@@ -37,7 +37,7 @@ const oppSchema = new Schema(
             required: [true, "Associated user is required"],
         },
     },
-    { timestamps: true }
+    { timestamps: true },
 );
 
 export type Opp = InferSchemaType<typeof oppSchema>;

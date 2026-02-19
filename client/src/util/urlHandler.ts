@@ -9,6 +9,6 @@ export function normalizeWebsite(input: string) {
 export function toHttpsUrl(input: string) {
     const value = input.trim();
     if (!value) return "";
-    if (/^https?:\/\//i.test(value)) return value;
-    return `https://${value}`;
+    if (/^https?:\/\//i.test(value)) return value.toLowerCase();
+    return `https://${value.toLowerCase()}`;
 }
