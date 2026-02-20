@@ -1,13 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import { loginUser } from "../../services/userRoutes";
+import { checkForUser, loginUser } from "../../services/userRoutes";
 
 const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
     const navigate = useNavigate();
     const { setUser } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [email, setEmail] = useState("");
+    const [emailTaken, setEmailTaken] = useState(false);
+    const [checking, setChecking] = useState(false);
+
+    useEffect(() => {
+        if (!email) return;
+
+        const timer = setTimeout(async () => {
+            setChecking(true);
+            try {
+                const res = await checkForUser(email);
+
+                setEmailTaken(res.isTaken);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setChecking(false);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [email]);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -46,8 +68,27 @@ const LoginForm = ({ showSignup }: { showSignup: () => void }) => {
                 placeholder="email"
                 autoComplete="email"
                 className="py-4 px-8 border-2 border-gray-400 rounded-md"
+                value={email}
+                onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailTaken(false);
+                }}
+                style={{ borderColor: emailTaken ? "red" : "#ccc" }}
                 required
             />
+
+            {!checking && !emailTaken && email.trim().length > 0 && (
+                <p style={{ color: "red" }}>
+                    No account found for this email.{" "}
+                    <button
+                        type="button"
+                        onClick={showSignup}
+                        className="font-bold cursor-pointer hover:underline"
+                    >
+                        Sign up?
+                    </button>
+                </p>
+            )}
             <input
                 type="password"
                 name="password"

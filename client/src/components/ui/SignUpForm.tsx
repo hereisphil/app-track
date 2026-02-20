@@ -98,7 +98,13 @@ const SignUpForm = ({
             {!checking && emailTaken && (
                 <p style={{ color: "red" }}>
                     This email is already registered.{" "}
-                    <a href="/login">Sign in?</a>
+                    <button
+                        type="button"
+                        onClick={showLogin}
+                        className="font-bold cursor-pointer hover:underline"
+                    >
+                        Sign in?
+                    </button>
                 </p>
             )}
             <input
