@@ -26,13 +26,14 @@ app.use(
             return callback(new Error(`CORS blocked for origin: ${origin}`));
         },
         credentials: true,
-    })
+    }),
 );
 
 app.set("trust proxy", 1);
 
 app.use(
     session({
+        name: "connect.sid",
         secret:
             process.env.SESSION_SECRET ||
             "1zMUz3AOgjhrF0Df335TyDI0dKE1RTo4MtaTnhyPxVQ=",
@@ -51,7 +52,7 @@ app.use(
                 "mongodb://127.0.0.1:27017/app_track",
             collectionName: "sessions",
         }),
-    })
+    }),
 );
 
 app.get("/", (_req: Request, res: Response) => {
@@ -80,7 +81,7 @@ app.use(
             success: false,
             message: err.message || "Internal Server Error",
         });
-    }
+    },
 );
 
 export default app;

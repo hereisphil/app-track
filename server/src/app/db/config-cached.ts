@@ -5,7 +5,7 @@ const MONGODB_URI =
 
 if (!MONGODB_URI) {
     throw new Error(
-        "Please define the MONGODB_URI environment variable inside .env"
+        "Please define the MONGODB_URI environment variable inside .env",
     );
 }
 
@@ -18,6 +18,9 @@ if (!cached) {
 
 async function connectDB() {
     if (cached.conn) {
+        console.log(
+            `Using cached MongoDB connection established at ${MONGODB_URI}`,
+        );
         return cached.conn;
     }
 
@@ -29,6 +32,9 @@ async function connectDB() {
         cached.promise = mongoose
             .connect(MONGODB_URI, opts)
             .then((mongoose) => {
+                console.log(
+                    `New MongoDB connection established at ${MONGODB_URI}`,
+                );
                 return mongoose;
             });
     }
