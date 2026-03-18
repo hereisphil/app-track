@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import Hero from "../components/ui/Hero";
 import LoginForm from "../components/ui/LoginForm";
 import SignUpForm from "../components/ui/SignUpForm";
+import Notification from "../components/ui/Notification";
 import { useAuth } from "../context/AuthContext";
 
 function Home() {
@@ -67,6 +68,7 @@ function Home() {
                             onExistingAccount={handleExistingAccount}
                         />
                     )}
+                    <Notification />
                 </div>
             </div>
         </main>
