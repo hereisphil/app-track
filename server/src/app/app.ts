@@ -19,7 +19,7 @@ const allowedOrigins = [
 ];
 
 // Regex to catch Vercel preview deployments
-// This matches "https://app-track-frontend-" followed by anything, ending in ".vercel.app"
+// This matches https://app-track-frontend- followed by anything, ending in .vercel.app
 const vercelPreviewRegex = /^https:\/\/app-track-frontend-.*\.vercel\.app$/;
 
 app.use(
