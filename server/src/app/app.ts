@@ -18,11 +18,16 @@ const allowedOrigins = [
     "https://app-track-frontend.vercel.app",
 ];
 
+// Regex to catch Vercel preview deployments
+// This matches https://app-track-frontend- followed by anything, ending in .vercel.app
+const vercelPreviewRegex = /^https:\/\/app-track-frontend-.*\.vercel\.app$/;
+
 app.use(
     cors({
         origin: (origin, callback) => {
-            if (!origin) return callback(null, true); // Postman/curl
+            if (!origin) return callback(null, true);
             if (allowedOrigins.includes(origin)) return callback(null, origin);
+            if (vercelPreviewRegex.test(origin)) return callback(null, origin);
             return callback(new Error(`CORS blocked for origin: ${origin}`));
         },
         credentials: true,
