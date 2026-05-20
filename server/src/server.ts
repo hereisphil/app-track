@@ -1,6 +1,5 @@
 import "dotenv/config";
 import connectDB from "./app/db/config-cached.js"; // Use the cached connection version
-
 import MongoStore from "connect-mongo";
 import cors from "cors";
 import express, { type Request, type Response } from "express";
