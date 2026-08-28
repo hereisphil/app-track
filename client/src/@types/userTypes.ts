@@ -10,7 +10,6 @@ export interface UserResponse {
 export interface User {
     id: string;
     email: string;
-    opportunities?: string[];
 }
 
 export interface SignUpData {

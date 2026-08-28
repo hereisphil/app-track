@@ -51,12 +51,12 @@ export async function fetchAllOpportunities() {
 }
 
 export async function createOpportunity(
-    newOpportunityData: Omit<OpportunityProps, "id">
+    newOpportunityData: Omit<OpportunityProps, "_id">
 ) {
     return sendRequest<{
         success: boolean;
         message: string;
-        opp: OpportunityProps;
+        opportunity: OpportunityProps;
     }>("/opps", {
         method: "POST",
         body: JSON.stringify(newOpportunityData),

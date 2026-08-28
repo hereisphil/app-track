@@ -7,10 +7,12 @@ export interface OpportunityProps {
     tags?: string[];
     status: string;
     userId: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface OpportunityResponse {
     success: boolean;
     message: string;
-    Opportunities: [];
+    Opportunities: OpportunityProps[];
 }
