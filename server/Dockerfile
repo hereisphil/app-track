@@ -1,23 +1,20 @@
-# 1. Base image
-FROM node:lts-trixie-slim
-
-# 2. Set working directory
+FROM node:lts-trixie-slim AS build
 WORKDIR /app
-
-# 3. Copy dependency files first (better layer caching)
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
 COPY package*.json ./
-
-# 4. Install dependencies
-RUN npm install
-
-# 5. Copy the rest of the source
+RUN npm ci
 COPY . .
+RUN npm run build && npm prune --omit=dev
 
-# 6. Build TypeScript
-RUN npm run build
-
-# 7. Expose backend port
-EXPOSE 5001
-
-# 8. Run compiled JS
-CMD ["npm", "start"]
+FROM node:lts-trixie-slim
+ENV NODE_ENV=production
+WORKDIR /app
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY package*.json ./
+ENV DATABASE_PATH=/data/app_track.sqlite
+VOLUME /data
+ENV PORT=3000
+EXPOSE 3000
+CMD ["node", "dist/src/server.js"]
