@@ -1,6 +1,6 @@
 # App Track 🚀
 
-A modern MERN Job & Opportunity Tracker built with TypeScript
+A modern full-stack Job & Opportunity Tracker built with React, Express, and SQLite — TypeScript everywhere
 
 Live App (Frontend):  
 👉 <https://app-track-frontend.vercel.app/>
@@ -15,7 +15,7 @@ Source Code:
 
 ## 🖥️ What Is App Track?
 
-**App Track** is a full-stack MERN web application that helps users track job applications and opportunities in one clean, centralized place.
+**App Track** is a full-stack web application that helps users track job applications and opportunities in one clean, centralized place.
 
 This project was built as a **real-world prototype**, focusing on:
 
@@ -49,10 +49,10 @@ This repo is designed to be:
 
 - Easy to read
 - Strongly typed everywhere
-- A reference for building and deploying a MERN app properly
+- A reference for building and deploying a full-stack TypeScript app properly
 - A realistic example of how frontend and backend connect in production
 
-If you’re learning MERN + TypeScript, this repo is meant to help you see how all the pieces fit together.
+If you’re learning full-stack TypeScript, this repo is meant to help you see how all the pieces fit together.
 
 ---
 
@@ -60,7 +60,7 @@ If you’re learning MERN + TypeScript, this repo is meant to help you see how a
 
 ### Frontend
 
-- React
+- React 19
 - TypeScript
 - Vite
 - Tailwind CSS
@@ -70,21 +70,22 @@ If you’re learning MERN + TypeScript, this repo is meant to help you see how a
 ### Backend
 
 - Node.js
-- Express
+- Express 5
 - TypeScript
-- MongoDB Atlas
-- Mongoose
-- express-session (auth)
+- SQLite via **better-sqlite3** (no ORM — raw SQL behind a thin repository layer)
+- express-session (auth) — sessions persisted in the same SQLite file via a custom session store
 - bcrypt (password hashing)
 - Docker (custom image)
 - Deployed on **Render**
+
+> 🔄 The backend originally ran on MongoDB Atlas + Mongoose; it has since been migrated to SQLite, so no external database service is needed.
 
 ---
 
 ## 🔐 Authentication & Security
 
 - Passwords are **hashed with bcrypt**
-- Sessions are handled with **express-session**
+- Sessions are handled with **express-session** and stored in the SQLite database via a custom session store
 - Protected API routes require authentication
 - CORS is locked down to the production frontend
 - Environment variables are used for all secrets
@@ -124,6 +125,7 @@ app-track/
 │
 ├── server/ # Express + TypeScript backend
 │ ├── src/
+│ ├── data/ # SQLite database file (auto-created, git-ignored)
 │ ├── Dockerfile
 │ └── tsconfig.json
 │
@@ -132,12 +134,90 @@ app-track/
 
 ---
 
+## 🏃 Running Locally
+
+No database service required — the SQLite database is a single file that the server creates automatically on first run.
+
+### Prerequisites
+
+- Node.js (v20+) and npm
+
+That’s it. No database install, no cloud database account.
+
+### 1. Backend
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+The API starts on **port 3000** (tsx watch mode), and the database file is auto-created at `./data/app_track.sqlite`.
+
+Create a `server/.env` file:
+
+```env
+DATABASE_PATH=./data/app_track.sqlite
+PORT=3000
+SESSION_SECRET=your-secret-here
+NODE_ENV=development
+```
+
+| Variable         | Description                                                                                                            |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_PATH`  | Path to the SQLite file (parent directory is auto-created). Use `:memory:` for an ephemeral in-memory database.        |
+| `PORT`           | Server port (defaults to `3000`)                                                                                        |
+| `SESSION_SECRET` | Secret used to sign session cookies                                                                                     |
+| `NODE_ENV`       | `development` locally, `production` in prod                                                                             |
+
+### 2. Frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Vite serves the app on **port 5173** — keep that port, since the backend CORS allowlist expects it.
+
+Create a `client/.env` file:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000/api/v1
+```
+
+> The `/api/v1` suffix is required — the client uses this value as the base for all API calls.
+
+### 3. Tests
+
+```bash
+cd server
+npm test
+```
+
+Runs the vitest + supertest contract suite against the API.
+
+---
+
+## 🗃️ Data Model
+
+Everything lives in one SQLite file (WAL mode, foreign keys enforced):
+
+- **users** — `_id` (TEXT UUID primary key), unique `email`, bcrypt password hash, timestamps
+- **opps** — `_id` (TEXT UUID primary key), `title`, `company`, optional `location`/`website`, `status` (CHECK-constrained to `applied | interviewing | offered | rejected`), `tags` (JSON text), `userId` foreign key → users with `ON DELETE CASCADE`, timestamps
+- **sessions** — express-session data, stored by the custom SQLite session store
+
+---
+
 ## 🐳 Docker & Deployment Notes
 
-- The backend is fully Dockerized
+- The backend is fully Dockerized with a multi-stage build
 - A custom Docker image is built and pushed to Docker Hub
 - Render pulls the image and injects environment variables
-- The backend respects process.env.PORT (required for cloud platforms)
+- The backend respects process.env.PORT (required for cloud platforms); the image exposes port 3000
+- The runtime image sets `DATABASE_PATH=/data/app_track.sqlite` and declares `VOLUME /data` so the database lives on a mountable volume
+
+> ⚠️ **SQLite on Render:** attach a persistent disk mounted at `/data`, or the database is wiped on every deploy/restart — the free tier’s filesystem is ephemeral. Also note that a persistent disk pins the service to a single instance (no horizontal scaling).
 
 This setup mirrors how real production services are deployed.
 
