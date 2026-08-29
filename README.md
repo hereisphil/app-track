@@ -145,13 +145,16 @@ This setup mirrors how real production services are deployed.
 
 ## ▲ Deploying the Backend to Vercel
 
-The backend also runs on Vercel as a serverless function — no Docker required.
+The backend also runs on Vercel — no Docker required.
 
-- `server/api/index.ts` is the function entrypoint; it exports the Express app.
-- `server/vercel.json` rewrites all routes to that function and skips the `tsc`
-  build (Vercel compiles the TypeScript function directly).
+- `server/vercel.json` sets the framework preset to **Express**. Vercel then
+  detects `src/server.ts` as the entrypoint (it looks for a conventional file
+  that imports `express`) and compiles it directly as a serverless function;
+  `app.listen` works as-is. The `tsc` output in `dist/` is only used by
+  Render/local `npm start`.
 - The app awaits a cached MongoDB connection per request, so cold starts are
   safe and connections are reused across invocations.
+- Note: under the Express preset, TypeScript errors fail the Vercel build.
 
 Vercel project settings:
 

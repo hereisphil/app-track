@@ -1,10 +1,22 @@
-import MongoStore from "connect-mongo";
+import MongoStoreImport from "connect-mongo";
 import cors from "cors";
 import express, { type Request, type Response } from "express";
 import session from "express-session";
 import morgan from "morgan";
 import connectDB from "./db/config-cached.js";
 import routeHandler from "./routes/index.js";
+
+// connect-mongo ships dual CJS/ESM types with different default-export
+// shapes: plain tsc resolves the ESM types (the MongoStore class), while
+// Vercel's build-time checker resolves the CJS types (a namespace). At
+// runtime the default export is always the class — normalize the type here
+// so the code checks under both.
+const MongoStore = MongoStoreImport as unknown as {
+    create(options: {
+        clientPromise: Promise<unknown>;
+        collectionName: string;
+    }): session.Store;
+};
 
 const app = express();
 // Define if we are in production or not
