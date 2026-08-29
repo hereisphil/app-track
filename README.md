@@ -5,8 +5,8 @@ A modern MERN Job & Opportunity Tracker built with TypeScript
 Live App (Frontend):  
 👉 <https://app-track-frontend.vercel.app/>
 
-Backend API (Docker + Render):  
-👉 <https://app-track-backendraw.onrender.com/api/v1>
+Backend API:  
+👉 <https://app-track-backend.vercel.app/>
 
 Source Code:  
 👉 <https://github.com/hereisphil/app-track>
