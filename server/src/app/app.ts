@@ -3,6 +3,7 @@ import cors from "cors";
 import express, { type Request, type Response } from "express";
 import session from "express-session";
 import morgan from "morgan";
+import connectDB from "./db/config-cached.js";
 import routeHandler from "./routes/index.js";
 
 const app = express();
@@ -34,7 +35,45 @@ app.use(
     }),
 );
 
-app.set("trust proxy", 1);
+// Health check — registered before the DB middleware so it responds even
+// when MongoDB is unreachable.
+app.get("/", (_req: Request, res: Response) => {
+    res.status(200).json({
+        message: "Server is running.",
+        success: true,
+    });
+});
+
+// Ensure the (cached) MongoDB connection is ready before handling any
+// request below. Required on serverless (Vercel), where a cold start must
+// not serve requests before the connection resolves — and where a fire-and-
+// forget connect would crash the function on rejection.
+app.use(async (_req, _res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Reuse the mongoose connection for session storage instead of letting
+// connect-mongo open a second MongoDB connection per serverless instance.
+// This promise must never reject: connect-mongo chains internal promises
+// off it without rejection handlers, and an unhandled rejection kills the
+// process (on Vercel: FUNCTION_INVOCATION_FAILED). Retry until connected —
+// while the DB is down, the middleware above already fails requests with
+// a 500 before the session store is ever reached.
+const mongoClientPromise = (async () => {
+    for (;;) {
+        try {
+            const m = await connectDB();
+            return m.connection.getClient();
+        } catch {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+    }
+})();
 
 app.use(
     session({
@@ -52,20 +91,11 @@ app.use(
         },
         rolling: true,
         store: MongoStore.create({
-            mongoUrl:
-                process.env.MONGODB_URI ||
-                "mongodb://127.0.0.1:27017/app_track",
+            clientPromise: mongoClientPromise,
             collectionName: "sessions",
         }),
     }),
 );
-
-app.get("/", (_req: Request, res: Response) => {
-    res.status(200).json({
-        message: "Server is running.",
-        success: true,
-    });
-});
 
 // API Routes
 app.use("/api/v1", routeHandler);

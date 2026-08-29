@@ -16,11 +16,19 @@ if (!cached) {
     cached = (global as any).mongoose = { conn: null, promise: null };
 }
 
+// Redact credentials so connection strings never end up in logs
+const safeUri = MONGODB_URI.replace(/\/\/[^@]+@/, "//***:***@");
+
+// Mongoose emits 'error' events for connection problems that happen after
+// (or outside) the connect() promise. Without a listener, Node treats the
+// event as fatal and kills the process — which surfaces on Vercel as
+// FUNCTION_INVOCATION_FAILED.
+mongoose.connection.on("error", (err) => {
+    console.error("MongoDB connection error:", err);
+});
+
 async function connectDB() {
     if (cached.conn) {
-        console.log(
-            `Using cached MongoDB connection established at ${MONGODB_URI}`,
-        );
         return cached.conn;
     }
 
@@ -33,7 +41,7 @@ async function connectDB() {
             .connect(MONGODB_URI, opts)
             .then((mongoose) => {
                 console.log(
-                    `New MongoDB connection established at ${MONGODB_URI}`,
+                    `New MongoDB connection established at ${safeUri}`,
                 );
                 return mongoose;
             });
