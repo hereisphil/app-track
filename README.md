@@ -181,10 +181,6 @@ Planned future improvements include:
 - Improved error handling & UX
 - Possibly JWT-based auth as an alternative to sessions
 
-## 👋 Author
-
-Hi! I’m Phillip Cantu, a current [Full Sail University](https://www.fullsail.edu/) web development student, _expected graduation February 2027_, a current Flatiron School [Accelerated AI Engineering Immersive](https://flatironschool.com/courses/work-integrated-programs/) student and paid apprentice, and a [4Geeks Academy Full Stack](https://www.phillipcantu.com/certificate.pdf) bootcamp graduate.
-
 - **GitHub:** [hereisphil](https://github.com/hereisphil)
 - **LinkedIn:** [phillipcantu](https://www.linkedin.com/in/phillipcantu/)
 - **Email:** [thereisphil@gmail.com](mailto:thereisphil@gmail.com)
